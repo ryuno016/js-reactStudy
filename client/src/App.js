@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import './App.css';
 import useCategories from "./hooks/useCategories";
 import Axios from 'axios';
-import OrderForm from './OrderForm'; 
 
 function App() {
     // ユーザー入力を管理するための状態を定義
@@ -20,8 +19,6 @@ function App() {
         }).then(() => {
             alert("User added successfully"); // 成功時のメッセージ
             refreshCategories();  // カテゴリーリストを更新
-            setName(''); // フォームをリセット
-            setEmail('');
         }).catch(err => {
             console.error("Error adding user: ", err); // エラーが発生した場合のコンソール出力
             alert("Failed to add user"); // エラーメッセージを表示
@@ -32,35 +29,23 @@ function App() {
         <div className="App">
             {/* ユーザー入力用のテキストボックス */}
             <div className="textBox">
-                <input
-                    type="text"
-                    placeholder="Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                /><br />
-                <input
-                    type="text"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                /><br />
+                <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} /><br />
+                <input type="text" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} /><br />
                 <button onClick={addUser}>Add User</button> {/* ボタンクリックでユーザー追加 */}
             </div>
             {/* ユーザーリストを表示 */}
             <ul>
                 {categoryList.map((val, index) => (
                     <li key={index}>
-                        <div className="user-info">
+                        <div class="user-info">
                             <span>名前:</span><span>{val.name}</span>
                         </div>
-                        <div className="user-info">
+                        <div class="user-info">
                             <span>email:</span><span>{val.email}</span>
                         </div>
                     </li>
                 ))}
             </ul>
-            {/* 注文フォームを表示 */}
-            <OrderForm />
         </div>
     );
 }
