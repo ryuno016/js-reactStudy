@@ -14,7 +14,6 @@ function ProductList() {
         console.error('Error fetching products:', error); // エラー処理
       });
   }, []); 
-  console.log(products);
 
   return (
     <table>
