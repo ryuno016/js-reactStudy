@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios'; // axiosをインポート
 
 function ProductList() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    fetch('/api/products') 
-      .then(res => res.json())
-      .then(data => setProducts(data));
+    // axiosを使ってAPIリクエストを送信
+    axios.get('http://localhost:3001/api/products') // プロトコルを追加
+      .then(res => {
+        setProducts(res.data); // レスポンスデータを設定
+      })
+      .catch(error => {
+        console.error('Error fetching products:', error); // エラー処理
+      });
   }, []); 
+  console.log(products);
 
   return (
     <table>
