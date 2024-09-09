@@ -9,7 +9,7 @@ const db = mysql.createPool({
   host: "localhost", // データベースのホスト名
   user: "root", // データベースのユーザー名
   password: "rootroot", // データベースのパスワード
-  database: "express_db" // 使用するデータベースの名前
+  database: "ordersdb" // 使用するデータベースの名前
 });
 
 // ミドルウェアを設定
@@ -40,6 +40,31 @@ app.post("/api/insert/user", (req, res) => {
     } else {
       res.status(200).send("User added successfully"); // 成功メッセージを返す
     }
+  });
+});
+
+// 商品データを取得するためのGETリクエストハンドラー
+app.get("/api/products", (req, res) => {
+  const sql = `
+    SELECT 
+      c.name AS customer_name,
+      c.address,
+      o.order_id,
+      o.quantity,
+      p.product_name,
+      p.product_price
+    FROM customers c
+    JOIN orders o ON c.customer_id = o.customer_id
+    JOIN products p ON o.product_id = p.product_id;
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).json({ error: "Internal Server Error" });
+      return;
+    }
+    res.json(results); 
   });
 });
 
