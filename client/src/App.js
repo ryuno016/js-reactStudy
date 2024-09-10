@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import './App.css';
 import Axios from 'axios';
 import ProductList from './ProductList'; // ProductList コンポーネントをインポート
+import OrderForm from './OrderForm';     // OrderForm コンポーネントをインポート
 
 function App() {
   // ユーザー入力を管理するための状態を定義
@@ -23,15 +24,31 @@ function App() {
 
   return (
     <div className="App">
-      {/* ユーザー入力用のテキストボックス */}
+      <h1>商品管理システム</h1>
+
+      {/* ユーザー追加用の入力フォーム */}
       <div className="textBox">
-        <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} /><br />
-        <input type="text" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} /><br />
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        /><br />
+        <input
+          type="text"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        /><br />
         <button onClick={addUser}>Add User</button> {/* ボタンクリックでユーザー追加 */}
       </div>
 
       {/* ProductList コンポーネントをレンダリング */}
       <ProductList /> 
+
+      {/* 新規注文を追加する OrderForm コンポーネント */}
+      <OrderForm /> 
+
     </div>
   );
 }

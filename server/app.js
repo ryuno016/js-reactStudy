@@ -12,6 +12,32 @@ const db = mysql.createPool({
   database: "ordersdb" // 使用するデータベースの名前
 });
 
+
+// 新しい注文を追加するPOSTエンドポイント
+app.post('/api/orders', (req, res) => {
+  const { customerName, productName, quantity } = req.body;
+  
+  // 商品IDと顧客IDを取得するためのSQLクエリを準備（適切な商品・顧客テーブルがあることを前提）
+  const sqlInsertOrder = `
+    INSERT INTO orders (customer_id, product_id, quantity) 
+    VALUES (
+      (SELECT customer_id FROM customers WHERE name = ?), 
+      (SELECT product_id FROM products WHERE product_name = ?), 
+      ?
+    );
+  `;
+
+  db.query(sqlInsertOrder, [customerName, productName, quantity], (err, result) => {
+    if (err) {
+      console.error("Error inserting order:", err);
+      res.status(500).json({ error: "Failed to place order" });
+    } else {
+      res.status(201).json({ message: "Order placed successfully" });
+    }
+  });
+});
+
+
 // ミドルウェアを設定
 app.use(express.json()); // JSONデータを解析するミドルウェア
 app.use(cors()); // CORSを許可するミドルウェア
