@@ -24,7 +24,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>商品管理システム</h1>
+      <h1>商品管理システム。</h1>
 
       {/* ユーザー追加用の入力フォーム */}
       <div className="textBox">
