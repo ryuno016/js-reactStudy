@@ -12,6 +12,32 @@ const db = mysql.createPool({
   database: "ordersdb" // 使用するデータベースの名前
 });
 
+
+// 新しい注文を追加するPOSTエンドポイント
+app.post('/api/orders', (req, res) => {
+  const { customerName, productName, quantity } = req.body;
+  
+  // 商品IDと顧客IDを取得するためのSQLクエリを準備（適切な商品・顧客テーブルがあることを前提）
+  const sqlInsertOrder = `
+    INSERT INTO orders (customer_id, product_id, quantity) 
+    VALUES (
+      (SELECT customer_id FROM customers WHERE name = ?), 
+      (SELECT product_id FROM products WHERE product_name = ?), 
+      ?
+    );
+  `;
+
+  db.query(sqlInsertOrder, [customerName, productName, quantity], (err, result) => {
+    if (err) {
+      console.error("Error inserting order:", err);
+      res.status(500).json({ error: "Failed to place order" });
+    } else {
+      res.status(201).json({ message: "Order placed successfully" });
+    }
+  });
+});
+
+
 // ミドルウェアを設定
 app.use(express.json()); // JSONデータを解析するミドルウェア
 app.use(cors()); // CORSを許可するミドルウェア
@@ -65,6 +91,68 @@ app.get("/api/products", (req, res) => {
       return;
     }
     res.json(results); 
+  });
+});
+
+// 新しい商品を追加するためのPOSTリクエストハンドラー
+app.post("/api/products", (req, res) => {
+  const { product_name, product_price } = req.body; // リクエストボディから商品名と価格を取得
+  const sqlInsert = "INSERT INTO products (product_name, product_price) VALUES (?, ?)"; // SQLクエリで新しい商品を追加
+  db.query(sqlInsert, [product_name, product_price], (err, result) => {
+    if (err) {
+      console.error("Error inserting product:", err);
+      res.status(500).send("Failed to add product");
+    } else {
+      res.status(201).send("Product added successfully");
+    }
+  });
+});
+
+// 特定の注文を取得するためのGETリクエストハンドラー
+app.get("/api/orders/:id", (req, res) => {
+  const orderId = req.params.id; // リクエストパラメータから注文IDを取得
+  const sqlSelect = `
+    SELECT 
+      c.name AS customer_name,
+      c.address,
+      o.order_id,
+      o.quantity,
+      p.product_name,
+      p.product_price
+    FROM customers c
+    JOIN orders o ON c.customer_id = o.customer_id
+    JOIN products p ON o.product_id = p.product_id
+    WHERE o.order_id = ?;
+  `; // 特定の注文IDに基づいてデータを取得
+  db.query(sqlSelect, [orderId], (err, result) => {
+    if (err) {
+      console.error("Error retrieving order:", err);
+      res.status(500).json({ error: "Failed to retrieve order" });
+    } else {
+      if (result.length === 0) {
+        res.status(404).send("Order not found");
+      } else {
+        res.json(result);
+      }
+    }
+  });
+});
+
+// 特定の注文を削除するためのDELETEリクエストハンドラー
+app.delete("/api/orders/:id", (req, res) => {
+  const orderId = req.params.id; // リクエストパラメータから注文IDを取得
+  const sqlDelete = "DELETE FROM orders WHERE order_id = ?"; // SQLクエリで注文を削除
+  db.query(sqlDelete, [orderId], (err, result) => {
+    if (err) {
+      console.error("Error deleting order:", err);
+      res.status(500).json({ error: "Failed to delete order" });
+    } else {
+      if (result.affectedRows === 0) {
+        res.status(404).send("Order not found");
+      } else {
+        res.status(200).send("Order deleted successfully");
+      }
+    }
   });
 });
 
