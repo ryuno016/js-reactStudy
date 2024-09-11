@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const OrderForm = ({ productId, customerId }) => {
+const OrderForm = ({ productId, customerId, orderId }) => {
   const [customerName, setCustomerName] = useState('');
   const [productName, setProductName] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -44,7 +44,7 @@ const OrderForm = ({ productId, customerId }) => {
     }
   };
 
-  // フォームの送信ハンドラー
+  // フォーム送信（新規注文）ハンドラー
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -68,10 +68,43 @@ const OrderForm = ({ productId, customerId }) => {
     }
   };
 
+  // 更新ハンドラー (注文データの更新)
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const updatedData = {
+        customerName,
+        productName,
+        quantity
+      };
+
+      // PUTリクエストで更新
+      const response = await axios.put(`http://localhost:3001/api/orders/${orderId}`, updatedData);
+      
+      setMessage('注文が正常に更新されました！');
+    } catch (error) {
+      console.error('注文の更新に失敗しました:', error);
+      setMessage('注文の更新に失敗しました。');
+    }
+  };
+
+  // 削除ハンドラー (注文または商品データの削除)
+  const handleDelete = async () => {
+    try {
+      // DELETEリクエストで削除
+      const response = await axios.delete(`http://localhost:3001/api/orders/${orderId}`);
+      
+      setMessage('注文が正常に削除されました！');
+    } catch (error) {
+      console.error('注文の削除に失敗しました:', error);
+      setMessage('注文の削除に失敗しました。');
+    }
+  };
+
   return (
     <div>
-      <h2>新しい注文</h2>
-      <form onSubmit={handleSubmit}>
+      <h2>注文フォーム</h2>
+      <form onSubmit={orderId ? handleUpdate : handleSubmit}>
         <div>
           <label>Customer Name:</label>
           <input 
@@ -102,8 +135,13 @@ const OrderForm = ({ productId, customerId }) => {
             required 
           />
         </div>
-        <button type="submit">注文を送信</button>
+        <button type="submit">{orderId ? 'Update Order' : 'Place Order'}</button>
       </form>
+      {orderId && (
+        <button onClick={handleDelete} style={{ marginTop: '10px', color: 'red' }}>
+          注文を削除
+        </button>
+      )}
       {message && <p>{message}</p>}
     </div>
   );
