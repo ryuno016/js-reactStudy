@@ -1,11 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const OrderForm = () => {
+const OrderForm = ({ productId, customerId }) => {
   const [customerName, setCustomerName] = useState('');
   const [productName, setProductName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [message, setMessage] = useState('');
+
+  // コンポーネントがマウントされたときにデータを取得
+  useEffect(() => {
+    const fetchOrderData = async () => {
+      try {
+        // 顧客データを取得
+        if (customerId) {
+          const customerResponse = await axios.get(`http://localhost:3001/api/customers/${customerId}`);
+          setCustomerName(customerResponse.data.name);
+        }
+        
+        // 商品データを取得
+        if (productId) {
+          const productResponse = await axios.get(`http://localhost:3001/api/products/${productId}`);
+          setProductName(productResponse.data.name);
+          setQuantity(productResponse.data.quantity || 1); // 既存数量がない場合は1をデフォルトに
+        }
+      } catch (error) {
+        console.error('データの取得に失敗しました:', error);
+        setMessage('データの取得に失敗しました。');
+      }
+    };
+
+    fetchOrderData();
+  }, [customerId, productId]);
 
   // フォームの入力ハンドラー
   const handleInputChange = (e) => {
@@ -32,14 +57,14 @@ const OrderForm = () => {
       // サーバーへ注文データを送信
       const response = await axios.post('http://localhost:3001/api/orders', orderData);
       
-      setMessage('Order placed successfully!');
+      setMessage('注文が正常に送信されました！');
       // フォームのリセット
       setCustomerName('');
       setProductName('');
       setQuantity('');
     } catch (error) {
-      console.error('Error placing order:', error);
-      setMessage('Failed to place order.');
+      console.error('注文の送信に失敗しました:', error);
+      setMessage('注文の送信に失敗しました。');
     }
   };
 
@@ -77,7 +102,7 @@ const OrderForm = () => {
             required 
           />
         </div>
-        <button type="submit">Place Order</button>
+        <button type="submit">注文を送信</button>
       </form>
       {message && <p>{message}</p>}
     </div>
