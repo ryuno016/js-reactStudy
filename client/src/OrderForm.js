@@ -88,6 +88,19 @@ const OrderForm = ({ productId, customerId, orderId }) => {
     }
   };
 
+  // 削除ハンドラー (注文または商品データの削除)
+  const handleDelete = async () => {
+    try {
+      // DELETEリクエストで削除
+      const response = await axios.delete(`http://localhost:3001/api/orders/${orderId}`);
+      
+      setMessage('注文が正常に削除されました！');
+    } catch (error) {
+      console.error('注文の削除に失敗しました:', error);
+      setMessage('注文の削除に失敗しました。');
+    }
+  };
+
   return (
     <div>
       <h2>注文フォーム</h2>
@@ -124,6 +137,11 @@ const OrderForm = ({ productId, customerId, orderId }) => {
         </div>
         <button type="submit">{orderId ? 'Update Order' : 'Place Order'}</button>
       </form>
+      {orderId && (
+        <button onClick={handleDelete} style={{ marginTop: '10px', color: 'red' }}>
+          注文を削除
+        </button>
+      )}
       {message && <p>{message}</p>}
     </div>
   );
