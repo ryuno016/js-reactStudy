@@ -6,6 +6,7 @@ const OrderForm = ({ productId, customerId, orderId }) => {
   const [productName, setProductName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');  // エラーメッセージ用のステート
 
   // コンポーネントがマウントされたときにデータを取得
   useEffect(() => {
@@ -25,7 +26,7 @@ const OrderForm = ({ productId, customerId, orderId }) => {
         }
       } catch (error) {
         console.error('データの取得に失敗しました:', error);
-        setMessage('データの取得に失敗しました。');
+        setError('データの取得に失敗しました。');
       }
     };
 
@@ -47,6 +48,8 @@ const OrderForm = ({ productId, customerId, orderId }) => {
   // フォーム送信（新規注文）ハンドラー
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(''); // エラーのリセット
+    setMessage(''); // メッセージのリセット
     try {
       const orderData = {
         customerName,
@@ -64,13 +67,15 @@ const OrderForm = ({ productId, customerId, orderId }) => {
       setQuantity('');
     } catch (error) {
       console.error('注文の送信に失敗しました:', error);
-      setMessage('注文の送信に失敗しました。');
+      setError('注文の送信に失敗しました。サーバーの状態を確認してください。');
     }
   };
 
   // 更新ハンドラー (注文データの更新)
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setError(''); // エラーのリセット
+    setMessage(''); // メッセージのリセット
     try {
       const updatedData = {
         customerName,
@@ -84,12 +89,14 @@ const OrderForm = ({ productId, customerId, orderId }) => {
       setMessage('注文が正常に更新されました！');
     } catch (error) {
       console.error('注文の更新に失敗しました:', error);
-      setMessage('注文の更新に失敗しました。');
+      setError('注文の更新に失敗しました。再度お試しください。');
     }
   };
 
   // 削除ハンドラー (注文または商品データの削除)
   const handleDelete = async () => {
+    setError(''); // エラーのリセット
+    setMessage(''); // メッセージのリセット
     try {
       // DELETEリクエストで削除
       const response = await axios.delete(`http://localhost:3001/api/orders/${orderId}`);
@@ -97,7 +104,7 @@ const OrderForm = ({ productId, customerId, orderId }) => {
       setMessage('注文が正常に削除されました！');
     } catch (error) {
       console.error('注文の削除に失敗しました:', error);
-      setMessage('注文の削除に失敗しました。');
+      setError('注文の削除に失敗しました。再度お試しください。');
     }
   };
 
@@ -142,6 +149,9 @@ const OrderForm = ({ productId, customerId, orderId }) => {
           注文を削除
         </button>
       )}
+      {/* エラーメッセージの表示 */}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {/* 成功メッセージの表示 */}
       {message && <p>{message}</p>}
     </div>
   );
