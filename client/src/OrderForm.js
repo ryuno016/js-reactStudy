@@ -60,9 +60,7 @@ const OrderForm = ({ productId, customerId, orderId, onDeleteSuccess }) => {
       
       setMessage('注文が正常に送信されました！');
       // フォームのリセット
-      setCustomerName('');
-      setProductName('');
-      setQuantity('');
+      resetForm();
     } catch (error) {
       console.error('注文の送信に失敗しました:', error);
       setError('注文の送信に失敗しました。サーバーの状態を確認してください。');
@@ -85,6 +83,8 @@ const OrderForm = ({ productId, customerId, orderId, onDeleteSuccess }) => {
       const response = await axios.put(`http://localhost:3001/api/orders/${orderId}`, updatedData);
       
       setMessage('注文が正常に更新されました！');
+      // フォームのリセット
+      resetForm();
     } catch (error) {
       console.error('注文の更新に失敗しました:', error);
       setError('注文の更新に失敗しました。再度お試しください。');
@@ -105,10 +105,20 @@ const OrderForm = ({ productId, customerId, orderId, onDeleteSuccess }) => {
       if (onDeleteSuccess) {
         onDeleteSuccess(orderId);
       }
+      
+      // フォームのリセット
+      resetForm();
     } catch (error) {
       console.error('注文の削除に失敗しました:', error);
       setError('注文の削除に失敗しました。再度お試しください。');
     }
+  };
+
+  // フォームのリセット関数
+  const resetForm = () => {
+    setCustomerName('');
+    setProductName('');
+    setQuantity('');
   };
 
   return (
